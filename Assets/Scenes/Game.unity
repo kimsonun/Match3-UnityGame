@@ -2612,6 +2612,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ed4360ab36daef4c9dd32250c4fa46d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_uiMenu: {fileID: 2110808864}
+  m_fishItemData: {fileID: 11400000, guid: f97ed6833d6e7b94b942be5d2cf0671b, type: 2}
 --- !u!4 &2136919903
 Transform:
   m_ObjectHideFlags: 0
