@@ -41,17 +41,20 @@ public class GameManager : MonoBehaviour
 
     private BoardController m_boardController;
 
-    private UIMainManager m_uiMenu;
+    [SerializeField] private UIMainManager m_uiMenu;
 
     private LevelCondition m_levelCondition;
+
+    private eLevelMode m_currentLevelMode;
+
+    [SerializeField] private FishItemData m_fishItemData;
 
     private void Awake()
     {
         State = eStateGame.SETUP;
 
         m_gameSettings = Resources.Load<GameSettings>(Constants.GAME_SETTINGS_PATH);
-
-        m_uiMenu = FindObjectOfType<UIMainManager>();
+        NormalItem.SetFishData(m_fishItemData);
         m_uiMenu.Setup(this);
     }
 
@@ -83,6 +86,7 @@ public class GameManager : MonoBehaviour
 
     public void LoadLevel(eLevelMode mode)
     {
+        m_currentLevelMode = mode;
         m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
         m_boardController.StartGame(this, m_gameSettings);
 
@@ -135,5 +139,24 @@ public class GameManager : MonoBehaviour
             Destroy(m_levelCondition);
             m_levelCondition = null;
         }
+    }
+
+    public void RestartCurrentLevel()
+    {
+        if (m_levelCondition != null)
+        {
+            m_levelCondition.ConditionCompleteEvent -= GameOver;
+            Destroy(m_levelCondition);
+            m_levelCondition = null;
+        }
+
+        if (m_boardController != null)
+        {
+            m_boardController.Clear();
+            Destroy(m_boardController.gameObject);
+            m_boardController = null;
+        }
+
+        LoadLevel(m_currentLevelMode);
     }
 }

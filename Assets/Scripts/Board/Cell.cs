@@ -17,7 +17,6 @@ public class Cell : MonoBehaviour
 
     public Cell NeighbourLeft { get; set; }
 
-
     public bool IsEmpty => Item == null;
 
     public void Setup(int cellX, int cellY)

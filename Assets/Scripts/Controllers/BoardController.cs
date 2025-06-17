@@ -235,11 +235,9 @@ public class BoardController : MonoBehaviour
     private IEnumerator ShiftDownItemsCoroutine()
     {
         m_board.ShiftDownItems();
-
         yield return new WaitForSeconds(0.2f);
 
         m_board.FillGapsWithNewItems();
-
         yield return new WaitForSeconds(0.2f);
 
         FindMatchesAndCollapse();
@@ -248,11 +246,9 @@ public class BoardController : MonoBehaviour
     private IEnumerator RefillBoardCoroutine()
     {
         m_board.ExplodeAllItems();
-
         yield return new WaitForSeconds(0.2f);
 
         m_board.Fill();
-
         yield return new WaitForSeconds(0.2f);
 
         FindMatchesAndCollapse();
@@ -261,7 +257,6 @@ public class BoardController : MonoBehaviour
     private IEnumerator ShuffleBoardCoroutine()
     {
         m_board.Shuffle();
-
         yield return new WaitForSeconds(0.3f);
 
         FindMatchesAndCollapse();
@@ -295,12 +290,22 @@ public class BoardController : MonoBehaviour
 
     private void StopHints()
     {
-        m_hintIsShown = false;
-        foreach (var cell in m_potentialMatch)
+        if (m_hintIsShown)
         {
-            cell.StopHintAnimation();
+            m_hintIsShown = false;
+            foreach (var cell in m_potentialMatch)
+            {
+                cell.StopHintAnimation();
+            }
         }
+    }
 
-        m_potentialMatch.Clear();
+    private void OnDestroy()
+    {
+        if (m_gameManager != null)
+        {
+            m_gameManager.StateChangedAction -= OnGameStateChange;
+        }
+        StopAllCoroutines();
     }
 }

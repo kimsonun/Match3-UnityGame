@@ -138,6 +138,25 @@ public class Board
 
     internal void FillGapsWithNewItems()
     {
+        // Count existing items of each type
+        Dictionary<NormalItem.eNormalType, int> typeCounts = new Dictionary<NormalItem.eNormalType, int>();
+        foreach (NormalItem.eNormalType type in System.Enum.GetValues(typeof(NormalItem.eNormalType)))
+        {
+            typeCounts[type] = 0;
+        }
+
+        for (int x = 0; x < boardSizeX; x++)
+        {
+            for (int y = 0; y < boardSizeY; y++)
+            {
+                Cell cell = m_cells[x, y];
+                if (!cell.IsEmpty && cell.Item is NormalItem normalItem)
+                {
+                    typeCounts[normalItem.ItemType]++;
+                }
+            }
+        }
+
         for (int x = 0; x < boardSizeX; x++)
         {
             for (int y = 0; y < boardSizeY; y++)
@@ -145,14 +164,40 @@ public class Board
                 Cell cell = m_cells[x, y];
                 if (!cell.IsEmpty) continue;
 
-                NormalItem item = new NormalItem();
+                // Get surrounding item types
+                HashSet<NormalItem.eNormalType> surroundingTypes = new HashSet<NormalItem.eNormalType>();
+                if (cell.NeighbourUp != null && cell.NeighbourUp.Item is NormalItem upItem)
+                    surroundingTypes.Add(upItem.ItemType);
+                if (cell.NeighbourRight != null && cell.NeighbourRight.Item is NormalItem rightItem)
+                    surroundingTypes.Add(rightItem.ItemType);
+                if (cell.NeighbourBottom != null && cell.NeighbourBottom.Item is NormalItem bottomItem)
+                    surroundingTypes.Add(bottomItem.ItemType);
+                if (cell.NeighbourLeft != null && cell.NeighbourLeft.Item is NormalItem leftItem)
+                    surroundingTypes.Add(leftItem.ItemType);
 
-                item.SetType(Utils.GetRandomNormalType());
+                // Find the least common type that's not in surrounding cells
+                NormalItem.eNormalType selectedType = NormalItem.eNormalType.TYPE_ONE;
+                int minCount = int.MaxValue;
+
+                foreach (var typeCount in typeCounts)
+                {
+                    if (!surroundingTypes.Contains(typeCount.Key) && typeCount.Value < minCount)
+                    {
+                        minCount = typeCount.Value;
+                        selectedType = typeCount.Key;
+                    }
+                }
+
+                NormalItem item = new NormalItem();
+                item.SetType(selectedType);
                 item.SetView();
                 item.SetViewRoot(m_root);
 
                 cell.Assign(item);
                 cell.ApplyItemPosition(true);
+
+                // Update type count
+                typeCounts[selectedType]++;
             }
         }
     }

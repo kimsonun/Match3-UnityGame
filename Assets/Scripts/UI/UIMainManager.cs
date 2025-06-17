@@ -49,6 +49,18 @@ public class UIMainManager : MonoBehaviour
     {
         m_gameManager = gameManager;
         m_gameManager.StateChangedAction += OnGameStateChange;
+        // Pass GameManager to all menus that need it
+        foreach (var menu in m_menuList)
+        {
+            if (menu is UIPanelGame panelGame)
+            {
+                panelGame.Setup(this, m_gameManager);
+            }
+            else if (menu is RestartButton restartButton)
+            {
+                restartButton.Setup(m_gameManager);
+            }
+        }
     }
 
     private void OnGameStateChange(GameManager.eStateGame state)

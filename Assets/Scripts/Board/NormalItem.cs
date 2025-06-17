@@ -16,10 +16,16 @@ public class NormalItem : Item
     }
 
     public eNormalType ItemType;
+    private static FishItemData fishData;
 
     public void SetType(eNormalType type)
     {
         ItemType = type;
+    }
+
+    public static void SetFishData(FishItemData data)
+    {
+        fishData = data;
     }
 
     protected override string GetPrefabName()
@@ -53,10 +59,27 @@ public class NormalItem : Item
         return prefabname;
     }
 
+    public override void SetView()
+    {
+        base.SetView();
+        
+        if (fishData != null && View != null)
+        {
+            SpriteRenderer spriteRenderer = View.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                Sprite fishSprite = fishData.GetFishSprite(ItemType);
+                if (fishSprite != null)
+                {
+                    spriteRenderer.sprite = fishSprite;
+                }
+            }
+        }
+    }
+
     internal override bool IsSameType(Item other)
     {
         NormalItem it = other as NormalItem;
-
         return it != null && it.ItemType == this.ItemType;
     }
 }

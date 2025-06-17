@@ -18,11 +18,7 @@ public class Item
 
         if (!string.IsNullOrEmpty(prefabname))
         {
-            GameObject prefab = Resources.Load<GameObject>(prefabname);
-            if (prefab)
-            {
-                View = GameObject.Instantiate(prefab).transform;
-            }
+            View = ItemPool.Instance.GetItem(prefabname).transform;
         }
     }
 
@@ -84,9 +80,10 @@ public class Item
     {
         if (View == null) return;
 
-        Vector3 scale = View.localScale;
+        Vector3 originalScale = Vector3.one;  // Use Vector3.one as default scale
         View.localScale = Vector3.one * 0.1f;
-        View.DOScale(scale, 0.1f);
+        View.DOScale(originalScale, 0.2f)  // Increased duration and using fixed scale
+            .SetEase(DG.Tweening.Ease.OutBack);  // Add easing for smoother animation
     }
 
     internal virtual bool IsSameType(Item other)
@@ -98,10 +95,11 @@ public class Item
     {
         if (View)
         {
+            string prefabName = GetPrefabName();
             View.DOScale(0.1f, 0.1f).OnComplete(
                 () =>
                 {
-                    GameObject.Destroy(View.gameObject);
+                    ItemPool.Instance.ReturnItem(prefabName, View.gameObject);
                     View = null;
                 }
                 );
@@ -132,7 +130,8 @@ public class Item
 
         if (View)
         {
-            GameObject.Destroy(View.gameObject);
+            string prefabName = GetPrefabName();
+            ItemPool.Instance.ReturnItem(prefabName, View.gameObject);
             View = null;
         }
     }
